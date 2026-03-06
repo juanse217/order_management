@@ -84,12 +84,16 @@ We had a List<OrderId> to hold the ids from the orders made by the Customer. For
 
 By doing this, we also remove the issue of the addOrder method. The id of the order passed would be null and we'd save null ids in the list if we didn't save the Order first. 
 
-# REMOVING THE ORDER LIST IN CUSTOMERENTITY.JAVA
+# REMOVING THE ORDER LIST IN CUSTOMERENTITY.JAVA UNIDIRECTIONAL RELATIONSHIP 
 It has kinda the same reasoning as above. First, it improves performance, the bidirectional relationships (thogh widely taught), are not strong for performance; our best shot is to, liike with a SQL query, keep the FK in one table referencing the parent table and that's it, our entities should model that. That way we avoid a lot of performance and memory issues. Besides that, our Customer class no longer needs a List of Orders so having it in the entity adds no value. 
 
 Naturally the 1:M relationships are unidirectional. The orders table has the customer_id column (FK) to reference to the customers. customers doesn't know anything about orders. 
 
 to get all the orders based on the customer id, we use the repository layer, we make it its responsibility. 
+
+A unidirectional many-to-one JPA relationship is defined by placing the @ManyToOne annotation on the field in the "many" (child) side of the relationship, without any reference back to the child in the "one" (parent) entity. This is the most natural and efficient way to map a standard foreign key in a relational database, as the foreign key column resides in the child entity's table. 
+Vlad Mihalcea
+
 
 
 Since you are strictly separating layers, the flow looks like this:
