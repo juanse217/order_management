@@ -1,4 +1,4 @@
-package com.sebastian.dev.order_management.repository;
+package com.sebastian.dev.order_management.repository.entity;
 
 import java.math.BigDecimal;
 
