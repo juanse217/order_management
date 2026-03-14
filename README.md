@@ -8,9 +8,6 @@ For the first time used static factory methods, very useful!
 # BEST PRACTICES
 In this file, we'll have the best practices learnt from this project. Which apply to this specific project and its requirements.  
 
-# CUSTOMER HOLDS A LIST LONG
-We do this, because Customer, Order and Product arde aggregates. We don't reference both directly but using their IDs; this way, we keep a loose coupling and also improve performance. 
-
 # OrderLine not having a Product object. 
 This class is a Value object, we're interested in having a snapshot of the products at a point in time. If the Product information changes (aggregate behavior), the information in OrderLine will also change. 
 
@@ -112,3 +109,29 @@ Repository then maps that Domain Order back to an OrderEntity, which now has tho
 
 # KEEPING ORDERLINEENTITY PRODUCTENTITY OBJECT AND ITS FIELDS
 We're doing this to keep certain integrity, for reports in the case we want to have information on products and also, we have the Product fields to keeep a snapshot, in a way, we have best of both worlds. 
+
+# PRODUCT MAPPER STRATEGY
+For the first time, I was a bit overwhelmed creating a mapping class. What made it a bit hard was the Value Object OrderLineEntity. I had 2 options to solve the Product and Customer (as well as their ids) being required for the OrderLineENtity: one was to make the service responsible to lookup every product in an order, pass them in a map using the SKU and key and in my mapper get each Product to pass it; the other option was to add the productId to OrderLine domain objcet, this made it easier and more pragmatic because we don't need our service to go through each order product but we already have that in the object. We chose the second one. 
+
+# EMBEDDEDID 
+This was an architectural decision taken because there was an issue with the Order Id. When creating the OrderLineEntity, we had a null orderId which was part of our PK, this would cause an Exception. The solution was to move the Composite PK to an Embeddable and use it in our OrderLineENtity, in the latter we have the actual objects that map to those ids. 
+
+# PROBLEMDETAIL
+
+We have a specification to return errors for HTTP APIs https://www.rfc-editor.org/rfc/rfc9457.html#name-requirements-language
+This makes our APIs, easier to work with and easier to understand whenever there's an error. 
+
+We can use a custom class but Spring Boot already provides a class ProblemDetail which allows us to add the details specified for the errors.
+
+# HttpServletRequest REQUEST
+
+we add this parameter in our GlobalExceptionHandler class to access the request URI and add it to the instance in the problem detail we'll return. Spring Boot is capable of injecting it.
+
+# ARCHITECTURAL DECISIONS & LEARNINGS SUMMARY
+
+1. **Strict Layering & DDD:** Enforced clean separation (Controller → DTOMapper → Domain Model → EntityMapper → JPA Entity). Domain models and web layers are completely isolated from each other and the DB.
+2. **Defensive Domain Models:** Used static factory methods (`newInstance`, `reconstitute`) and immutable constraints to ensure Domain objects cannot exist in an invalid state.
+3. **DTOs as API Contracts:** Leveraged DTOs to hide domain logic. Implemented **JSR-380 Validation Groups** (`OnPost.class`) to reuse DTOs for `POST` and `PUT` with different validation rules. 
+4. **REST Semantics:** Mastered the difference between `PUT` and `POST`. Ensured the resource ID flows from the URI (`@PathVariable`) directly to the mapper during updates, preventing ID mismatch errors.
+5. **Advanced Entity Mapping:** Solved complex JPA join table requirements by using `@EmbeddedId` and `@MapsId` to correctly map a composite primary key in `OrderLineEntity`.
+6. **RFC-9457 Error Handling:** Created a `@RestControllerAdvice` to centralize exception management. Utilized `ProblemDetail` with dynamic `HttpServletRequest` injection to return clean, standardized API error responses instead of internal server stack traces.
