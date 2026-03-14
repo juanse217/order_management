@@ -1,6 +1,5 @@
 package com.sebastian.dev.order_management.model;
 
-import java.util.List;
 
 public class Customer { // Customer 1:M Order
     private Long id; 
@@ -25,12 +24,9 @@ public class Customer { // Customer 1:M Order
     }
 
 
-    public static Customer reconstitute(Long id, String name, String address, List<Long> orders){
+    public static Customer reconstitute(Long id, String name, String address){
         if (id == null || id <=0) {
             throw new IllegalArgumentException("id is required");
-        }
-        if(orders == null){
-            throw new IllegalArgumentException("The order list is required");
         }
 
         Customer c = new Customer(id, name, address);

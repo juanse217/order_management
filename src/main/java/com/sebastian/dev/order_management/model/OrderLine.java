@@ -6,22 +6,29 @@ package com.sebastian.dev.order_management.model;
 import java.math.BigDecimal;
 
 public class OrderLine { //Value object
+    private final Long productId; //Pragmatic approach for mapping strategy. Avoid complex and repetitive logic in service. 
     private final String productName;
     private final String sku; 
     private final int quantity; 
     private final BigDecimal unitPrice; //price at the time of purchase
     
-    public OrderLine(String productName, String sku, int quantity, BigDecimal unitPrice) {
+    public OrderLine(Long productId, String productName, String sku, int quantity, BigDecimal unitPrice) {
         validateName(productName);
         validateSku(sku);
         validateQuantity(quantity);
         validatePrice(unitPrice);
+        validateId(productId);
+        this.productId = productId;
         this.productName = productName;
         this.sku = sku;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
     }
 
+    public Long getProductId() {
+        return productId;
+    }
+    
     public String getProductName() {
         return productName;
     }
@@ -63,6 +70,12 @@ public class OrderLine { //Value object
     private static void validatePrice(BigDecimal price){
         if(price == null || (price.compareTo(BigDecimal.ZERO) <=0)){
             throw new IllegalArgumentException("The price is required and has to be more than 0");
+        }
+    }
+
+    private static void validateId(Long id){
+        if(id == null || id <= 0){
+            throw new IllegalArgumentException("The product id must be valid");
         }
     }
 }

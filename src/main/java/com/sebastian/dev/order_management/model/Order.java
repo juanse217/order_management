@@ -6,44 +6,42 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
-
-public class Order { //Order M:N Product
-    private Long id; 
-    private final LocalDate orderDate; 
-    private final List<OrderLine> orderProducts = new ArrayList<>(); //Ensures the list reference cannot be changed. 
-    private final Long customerId;//Ensures the customer cannot be changed.
+public class Order { // Order M:N Product
+    private Long id;
+    private final LocalDate orderDate;
+    private final List<OrderLine> orderProducts = new ArrayList<>(); // Ensures the list reference cannot be changed.
+    private final Long customerId;// Ensures the customer cannot be changed.
 
     private Order(LocalDate orderDate, Long customerId) {
         this.orderDate = orderDate;
         this.customerId = customerId;
     }
 
-    private Order(LocalDate orderDate, Long customerId , Long id){
+    private Order(LocalDate orderDate, Long customerId, Long id) {
         this.orderDate = orderDate;
         this.customerId = customerId;
         this.id = id;
     }
 
-    public static Order newInstance(LocalDate date, Long c){
+    public static Order newInstance(LocalDate date, Long c) {
         validateDate(date);
         validateCreationDate(date);
         validateCustomer(c);
         return new Order(date, c);
     }
 
-    public static Order reconstitute(LocalDate date, Long c, List<OrderLine> products, Long id){
+    public static Order reconstitute(LocalDate date, Long customerId, List<OrderLine> products, Long id) {
         validateDate(date);
-        validateCustomer(c);
-        if(products == null){
+        validateCustomer(customerId);
+        if (products == null) {
             throw new IllegalArgumentException("The products list cannot be null");
         }
-        if (id == null || id <=0) {
+        if (id == null || id <= 0) {
             throw new IllegalArgumentException("id is required");
         }
-        Order o = new Order(date, c, id);
+        Order o = new Order(date, customerId, id);
         o.orderProducts.addAll(products);
-        return o; 
+        return o;
     }
 
     public Long getId() {
@@ -53,19 +51,20 @@ public class Order { //Order M:N Product
     public LocalDate getOrderDate() {
         return orderDate;
     }
+
     public Collection<OrderLine> getOrderProducts() {
         return Collections.unmodifiableCollection(orderProducts);
     }
+
     public Long getCustomerId() {
         return customerId;
-    } 
-
-    public void addProduct(Product product, int quantity){
-        OrderLine line = new OrderLine(product.getName(), product.getSku(), quantity, product.getPrice());
-        orderProducts.add(line);
     }
 
-    
+    public void addProduct(Product product, int quantity) {
+        OrderLine line = new OrderLine(product.getId(), product.getName(), product.getSku(), quantity,
+                product.getPrice());
+        orderProducts.add(line);
+    }
 
     @Override
     public int hashCode() {
@@ -92,21 +91,21 @@ public class Order { //Order M:N Product
         return true;
     }
 
-    //validation methods
-    private static void validateDate(LocalDate date){
-        if(date == null){
+    // validation methods
+    private static void validateDate(LocalDate date) {
+        if (date == null) {
             throw new IllegalArgumentException("The date is required.");
         }
     }
 
-    private static void validateCreationDate(LocalDate date){
-        if(date.isBefore(LocalDate.now())){
+    private static void validateCreationDate(LocalDate date) {
+        if (date.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("The date cannot be in the past");
         }
     }
 
-    private static void validateCustomer(Long c){
-        if(c == null || c <= 0){ //Id is checked by Customer class. 
+    private static void validateCustomer(Long c) {
+        if (c == null || c <= 0) { // Id is checked by Customer class.
             throw new IllegalArgumentException("The customer is required");
         }
     }
